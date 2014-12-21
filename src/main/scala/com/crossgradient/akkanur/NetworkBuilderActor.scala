@@ -14,9 +14,9 @@ class NetworkBuilderActor extends Actor with ActorLogging {
   def receive = {
     case Initialize =>
       log.info("In NetworkBuilderActor")
-      inputLayer.tell(InputLayerActor.Initialize,self)
-      hiddenLayer1.tell(HiddenLayerActor.Initialize,self)
-      hiddenLayer2.tell(HiddenLayerActor.Initialize,self)
+      inputLayer.tell(InputLayerActor.Initialize(5),self)
+      hiddenLayer1.tell(HiddenLayerActor.Initialize(5),self)
+      hiddenLayer2.tell(HiddenLayerActor.Initialize(5),self)
       outputLayer.tell(OutputLayerActor.Initialize,self)
   }
 }

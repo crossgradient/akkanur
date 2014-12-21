@@ -9,6 +9,7 @@ class OutputLayerActor extends Actor with ActorLogging {
   def receive = {
     case Initialize =>
       log.info("In OutputLayerActor - init")
+      
   }
 }
 

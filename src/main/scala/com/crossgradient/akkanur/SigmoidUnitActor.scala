@@ -4,9 +4,9 @@ import akka.actor.{Actor, ActorLogging, Props}
 
 import scala.collection.mutable
 
-class NeuronActor extends Actor with ActorLogging {
+class SigmoidUnitActor extends Actor with ActorLogging {
 
-  import NeuronActor._
+  import SigmoidUnitActor._
 
   // source neuron - weight
   val w = mutable.HashMap[String,Double]()
@@ -16,31 +16,44 @@ class NeuronActor extends Actor with ActorLogging {
 
   def receive = {
     case Initialize =>
-      log.info("In NeuronActor - setting default weight")
+      log.info("In SigmoidUnitActor - setting default weight")
       // gaussian weight init
       // register as child to neurons in upper layer
-    case NeuronActor.RegisterChildMessage =>
+    
+    case LinearUnitActor.RegisterChildMessage =>
       feedingNeurons.put(sender().path.toStringWithoutAddress,false)
-    case NeuronActor.outMessage(v) =>
-      log.info("In NeuronActor - received input value: {} from {}", v, sender().path)
+    
+    case LinearUnitActor.outMessage(v) =>
+      log.info("In SigmoidUnitActor - received input value: {} from {}", v, sender().path)
       inputs.put(sender().path.toStringWithoutAddress,v)
       feedingNeurons.put(sender().path.toStringWithoutAddress,true)
       if( feedingNeurons.values.toList.distinct(0) ) {
         context.parent.tell(InputsCompleteMessage,self)
       }
+      
+    case SigmoidUnitActor.RegisterChildMessage =>
+      feedingNeurons.put(sender().path.toStringWithoutAddress,false)
+    
+    case SigmoidUnitActor.outMessage(v) =>
+      log.info("In SigmoidUnitActor - received input value: {} from {}", v, sender().path)
+      inputs.put(sender().path.toStringWithoutAddress,v)
+      feedingNeurons.put(sender().path.toStringWithoutAddress,true)
+      if( feedingNeurons.values.toList.distinct(0) ) {
+        context.parent.tell(InputsCompleteMessage,self)
+      }      
   }
 }
 
-object NeuronActor {
+object SigmoidUnitActor {
 
-    val props = Props[NeuronActor]
+    val props = Props[SigmoidUnitActor]
 
     case object Initialize
     case class outMessage(v:Double)
     case class RegisterChildMessage()
     case class InputsCompleteMessage()
 
-    def sigmoid(x:Double):Double = {
+    def f(x:Double):Double = {
       1 / (1 + math.exp(-x))
     }
 
